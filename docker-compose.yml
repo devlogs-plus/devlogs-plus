@@ -1,0 +1,20 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:16
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
