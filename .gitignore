@@ -1,3 +1,2 @@
 .env
-nginx/certs/*
-!nginx/certs/.gitkeep
+backend.env
