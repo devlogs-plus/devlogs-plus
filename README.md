@@ -72,6 +72,44 @@ Devlogs+ uses these to add time spent to your devlogs and projects.
 
 ## Developing
 
-To help devlop Devlogs+ you can edit the backend and frontend codebases. More through developing instructions are there.
+To help develop Devlogs+ you can edit the backend and frontend codebases. More through developing instructions are there.
 
-It is recommended to use docker as it containerizes each part. 
+### Docker Compose
+
+#### Local Development 
+
+When developing locally you are either on a separate branch of the repo or your own fork.
+ Doing this means that you will have to update the git submodules.
+
+Update the backend for a fork with:
+```sh
+git submodule set-url backend https://github.com/<your-fork>/devlogs-plus-backend.git
+git submodule sync
+```
+Update the backend for a fork with:
+```sh
+git submodule set-url frontend https://github.com/<your-fork>/devlogs-plus-frontend.git
+git submodule sync
+```
+If developing on a separate branch update the branch with
+```sh
+git submodule set-branch --branch <branch-name> backend/frontend
+git submodule update --remote backend/frontend
+```
+
+
+Configure `backend/.env` and `POSTGRES_PASSWORD` in `.env`, then run:
+
+```sh
+docker compose up --build
+```
+
+This uses `docker-compose.yaml` and exposes the frontend at `http://localhost:8080` and the backend at `http://localhost:8000`.
+
+#### Production
+
+Configure `backend.env`, `POSTGRES_PASSWORD` and `DOMAIN` in `.env`, and set the hostnames in `Caddyfile`. Instead of using git submodules, it uses the ghcr packages:
+
+```sh
+docker compose -f docker-compose.prod.yaml up -d
+```
