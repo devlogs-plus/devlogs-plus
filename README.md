@@ -2,6 +2,7 @@
 **Devlogs+** is a platform to share projects, devlogs, and time spent publicly.
 
 Looking for the backend repo? Find it [here](https://github.com/devlogs-plus/devlogs-plus-backend)
+Looking for the backend api docs? Find it [here](https://github.com/devlogs-plus/backend-api-docs)
 Looking for the frontend repo? Find it [here](https://github.com/devlogs-plus/devlogs-plus-frontend)
 
 ## **Features**
