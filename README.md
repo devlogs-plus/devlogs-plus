@@ -96,9 +96,7 @@ If developing on a separate branch update the branch with
 git submodule set-branch --branch <branch-name> backend/frontend
 git submodule update --remote backend/frontend
 ```
-
-
-Configure `backend/.env` and `POSTGRES_PASSWORD` in `.env`, then run:
+Once that is done configure `backend/.env` and `POSTGRES_PASSWORD` in `.env`, then run:
 
 ```sh
 docker compose up --build
@@ -108,8 +106,55 @@ This uses `docker-compose.yaml` and exposes the frontend at `http://localhost:80
 
 #### Production
 
-Configure `backend.env`, `POSTGRES_PASSWORD` and `DOMAIN` in `.env`, and set the hostnames in `Caddyfile`. Instead of using git submodules, it uses the ghcr packages:
+The production Compose application is published to GHCR. Create a deployment directory on the server and add the three configuration files below. The Compose file and application images are pulled from GHCR when you start the stack.
 
 ```sh
-docker compose -f docker-compose.prod.yaml up -d
+mkdir devlogs-plus
+cd devlogs-plus
 ```
+
+Create `.env` for Compose interpolation:
+
+```dotenv
+DOMAIN=yourdomain.com
+# Generate a unique password with: openssl rand -hex 32
+POSTGRES_PASSWORD=replace-with-a-unique-password
+```
+
+Create `backend.env` for backend settings. Set the credentials for the integrations you plan to use; keep unused credentials blank. `SECRET_KEY` should be a long, random value, for example generated with `python -c "import secrets; print(secrets.token_hex(32))"`.
+
+```dotenv
+CDN_KEY=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+HACKCLUB_CLIENT_ID=
+HACKCLUB_CLIENT_SECRET=
+FRONTEND_URL=https://yourdomain.com
+SECRET_KEY=replace-with-a-random-secret
+RESEND_API_KEY=
+HACKATIME_CLIENT_ID=
+HACKATIME_CLIENT_SECRET=
+WAKATIME_CLIENT_ID=
+WAKATIME_CLIENT_SECRET=
+```
+
+Create `Caddyfile`, replacing `yourdomain.com` with the domain used in `.env`. Point the DNS records for both hostnames at the server:
+
+```caddyfile
+yourdomain.com {
+    reverse_proxy frontend:80
+}
+
+api.yourdomain.com {
+    reverse_proxy backend:8000
+}
+```
+
+Start the published production application:
+
+```sh
+docker compose --project-directory . --env-file .env \
+  -f oci://ghcr.io/devlogs-plus/devlogs-plus:latest up -d
+```
+
+Keep `.env` and `backend.env` private and do not commit them. For updates, run the same command again after the GHCR Compose artifact has been republished. The deployment uses the published backend and frontend images; no Git submodules or local source build are required.
